@@ -3,6 +3,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class UiSudokuClass(object):
+    to_place = ''
+
     def setup_ui(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
         SudokuClass.resize(550, 650)
@@ -59,6 +61,7 @@ class UiSudokuClass(object):
         self.Table.verticalHeader().setDefaultSectionSize(50)
         self.Table.verticalHeader().setHighlightSections(False)
         self.Table.verticalHeader().setMinimumSectionSize(10)
+        self.Table.selectionModel().selectionChanged.connect(self.handle_select_matrix)
 
         lines_coordonates = [(50, 170, 451, 21), (50, 320, 451, 21), (180, 30, 41, 451), (330, 30, 41, 451)]
         for index in range(0, 4):
@@ -110,26 +113,50 @@ class UiSudokuClass(object):
         self.Table_2.verticalHeader().setHighlightSections(False)
         self.Table_2.verticalHeader().setMinimumSectionSize(10)
         SudokuClass.setCentralWidget(self.centralWidget)
+        self.Table_2.selectionModel().selectionChanged.connect(self.handle_select_numbers)
 
-        self.predefined_options(SudokuClass)
+        self.predefined_options()
+        self.default_instance()
         QtCore.QMetaObject.connectSlotsByName(SudokuClass)
 
-    def predefined_options(self, SudokuClass):
-        _translate = QtCore.QCoreApplication.translate
-        SudokuClass.setWindowTitle(_translate("SudokuClass", "Sudoku"))
-        __sortingEnabled = self.Table.isSortingEnabled()
-        self.Table.setSortingEnabled(False)
-        self.Table.setSortingEnabled(__sortingEnabled)
-        __sortingEnabled = self.Table_2.isSortingEnabled()
-        self.Table_2.setSortingEnabled(False)
+    def default_instance(self):
+        instance = '009600042630489007000057030213894675000500213060020089980360700320708000405910060'
+        for line in range(0, 9):
+            for column in range(0, 9):
+                nr = instance[line*9 + column]
+                if nr != '0':
+                    item = self.Table.item(line, column)
+                    item.setText(nr)
 
-        for index in range(0, 9):
-            item = self.Table_2.item(0, index)
-            item.setText(_translate("SudokuClass", f"{index + 1}"))
+    def predefined_options(self):
+        for column in range(0, 9):
+            item = self.Table_2.item(0, column)
+            item.setText(f"{column+1}")
+
         item = self.Table_2.item(0, 9)
-        item.setText(_translate("SudokuClass", "-"))
+        item.setText('-')
 
-        self.Table_2.setSortingEnabled(__sortingEnabled)
+    def handle_select_matrix(self, selected):
+        row = column = 0
+        for ix in selected.indexes():
+            row = ix.row()
+            column = ix.column()
+
+        item = self.Table.item(row, column)
+        item.setText(self.to_place)
+
+        # check if final solution
+
+    def handle_select_numbers(self, selected):
+        index = 0
+        for ix in selected.indexes():
+            index = ix.column()
+
+        if index == 9:
+            self.to_place = ''
+        else:
+            item = self.Table_2.item(0, index)
+            self.to_place = item.text()
 
     def predefined_values(self, SudokuClass):
         pass
