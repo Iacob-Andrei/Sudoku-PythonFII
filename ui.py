@@ -1,9 +1,11 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
+import generate
 
 
 class UiSudokuClass(object):
-    to_place = ''
+    to_place = None
+    instance = generate.generate_instance(40)
 
     def setup_ui(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
@@ -39,13 +41,6 @@ class UiSudokuClass(object):
         self.Table.setRowCount(9)
         self.Table.setColumnCount(9)
         self.Table.setObjectName("Table")
-
-        # item = QtWidgets.QTableWidgetItem()
-        # item.setTextAlignment(QtCore.Qt.AlignCenter)
-        # brush = QtGui.QBrush(QtGui.QColor(0, 170, 255))
-        # brush.setStyle(QtCore.Qt.SolidPattern)
-        # item.setBackground(brush)
-        # self.Table.setItem(2, 2, item)
 
         for line in range(0, 9):
             for column in range(0, 9):
@@ -120,13 +115,15 @@ class UiSudokuClass(object):
         QtCore.QMetaObject.connectSlotsByName(SudokuClass)
 
     def default_instance(self):
-        instance = '009600042630489007000057030213894675000500213060020089980360700320708000405910060'
         for line in range(0, 9):
             for column in range(0, 9):
-                nr = instance[line*9 + column]
+                nr = self.instance[line*9 + column]
                 if nr != '0':
                     item = self.Table.item(line, column)
                     item.setText(nr)
+                    brush = QtGui.QBrush(QtGui.QColor(216, 216, 216))
+                    brush.setStyle(QtCore.Qt.SolidPattern)
+                    item.setBackground(brush)
 
     def predefined_options(self):
         for column in range(0, 9):
@@ -137,10 +134,16 @@ class UiSudokuClass(object):
         item.setText('-')
 
     def handle_select_matrix(self, selected):
+        if self.to_place is None:
+            return
+
         row = column = 0
         for ix in selected.indexes():
             row = ix.row()
             column = ix.column()
+
+        if self.instance[row*9 + column] != '0':
+            return
 
         item = self.Table.item(row, column)
         item.setText(self.to_place)
