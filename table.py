@@ -30,17 +30,12 @@ def verify_on_column(matrix: numpy.array) -> bool:
 
 
 def verify_small_matrix(matrix: numpy.array) -> bool:
-    matrices = list()
-
     for line in range(0, 9, 3):
         for column in range(0, 9, 3):
             mat = list()
             for i in range(line, line+3):
                 for j in range(column, column+3):
+                    if matrix[i][j] in mat:
+                        return False
                     mat.append(matrix[i][j])
-            matrices.append(mat)
-
-    for mat in matrices:
-        if len(mat) != len(set(mat)):
-            return False
     return True

@@ -1,7 +1,12 @@
 import sys
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 import table
+
+
+def cancel_popup():
+    sys.exit()
 
 
 class UiSudokuClass(object):
@@ -11,8 +16,10 @@ class UiSudokuClass(object):
 
     def setup_ui(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
-        SudokuClass.resize(550, 650)
+        SudokuClass.setFixedSize(550, 650)
         SudokuClass.setLayoutDirection(QtCore.Qt.RightToLeft)
+        SudokuClass.setWindowTitle("Sudoku")
+        SudokuClass.setWindowIcon(QtGui.QIcon('resources/logo.png'))
         self.centralWidget = QtWidgets.QWidget(SudokuClass)
         self.centralWidget.setObjectName("centralWidget")
 
@@ -152,9 +159,8 @@ class UiSudokuClass(object):
 
         self.get_matrix_state()
         if table.verify_final_instance(self.matrix):
-            print("gud")
-        else:
-            print("bad")
+            self.show_popup("Congrats")
+        self.Table.clearSelection()
 
     def handle_select_numbers(self, selected):
         index = 0
@@ -174,6 +180,22 @@ class UiSudokuClass(object):
                 item = self.Table.item(line, column)
                 self.matrix.append(item.text())
         self.matrix = np.array(self.matrix).reshape((9, 9))
+
+    def show_popup(self, text):
+        msg = QMessageBox()
+        msg.setWindowTitle(text)
+        msg.setWindowIcon(QtGui.QIcon('resources/logo.png'))
+        if text == "Congrats":
+            msg.setText("Congrats, you finished the game!")
+            msg.setIcon(QMessageBox.Information)
+            msg.setStandardButtons(QMessageBox.Cancel)
+        else:
+            msg.setText("Unfortunately, the time is up!")
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Cancel)
+
+        msg.buttonClicked.connect(cancel_popup)
+        msg.exec_()
 
 
 if __name__ == "__main__":
