@@ -1,11 +1,13 @@
 import sys
+import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
-import generate
+import table
 
 
 class UiSudokuClass(object):
     to_place = None
-    instance = generate.generate_instance(40)
+    instance = table.generate_instance(10)
+    matrix = []
 
     def setup_ui(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
@@ -148,7 +150,11 @@ class UiSudokuClass(object):
         item = self.Table.item(row, column)
         item.setText(self.to_place)
 
-        # check if final solution
+        self.get_matrix_state()
+        if table.verify_final_instance(self.matrix):
+            print("gud")
+        else:
+            print("bad")
 
     def handle_select_numbers(self, selected):
         index = 0
@@ -161,8 +167,13 @@ class UiSudokuClass(object):
             item = self.Table_2.item(0, index)
             self.to_place = item.text()
 
-    def predefined_values(self, SudokuClass):
-        pass
+    def get_matrix_state(self):
+        self.matrix = []
+        for line in range(0, 9):
+            for column in range(0, 9):
+                item = self.Table.item(line, column)
+                self.matrix.append(item.text())
+        self.matrix = np.array(self.matrix).reshape((9, 9))
 
 
 if __name__ == "__main__":
