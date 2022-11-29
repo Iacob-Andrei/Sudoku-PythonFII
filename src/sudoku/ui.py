@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
+
 import table
 
 
@@ -10,16 +10,25 @@ def cancel_popup():
 
 
 class UiSudokuClass(object):
-    to_place = None
-    instance = table.generate_instance(10)
-    matrix = []
+    def __init__(self, SudokuClass, max_time, difficulty):
+        self.instance = table.generate_instance(difficulty)
+        self.to_place = None
+        self.matrix = []
+        self.count = max_time
+        self.start = True
 
-    def __init__(self, SudokuClass):
+        self.generate_ui(SudokuClass)
+        self.predefined_options()
+        self.default_instance()
+
+        QtCore.QMetaObject.connectSlotsByName(SudokuClass)
+
+    def generate_ui(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
         SudokuClass.setFixedSize(550, 650)
         SudokuClass.setLayoutDirection(QtCore.Qt.RightToLeft)
         SudokuClass.setWindowTitle("Sudoku")
-        SudokuClass.setWindowIcon(QtGui.QIcon('resources/logo.png'))
+        SudokuClass.setWindowIcon(QtGui.QIcon('../../resources/logo.png'))
         self.centralWidget = QtWidgets.QWidget(SudokuClass)
         self.centralWidget.setObjectName("centralWidget")
 
@@ -119,14 +128,32 @@ class UiSudokuClass(object):
         SudokuClass.setCentralWidget(self.centralWidget)
         self.Table_2.selectionModel().selectionChanged.connect(self.handle_select_numbers)
 
-        self.predefined_options()
-        self.default_instance()
-        QtCore.QMetaObject.connectSlotsByName(SudokuClass)
+        self.label = QtWidgets.QLabel(self.centralWidget)
+        self.label.setGeometry(220, 580, 100, 35)
+        self.label.setStyleSheet("border : 3px solid black")
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+        timer = QtCore.QTimer(self.centralWidget)
+        timer.timeout.connect(self.show_time)
+        timer.start(100)
+
+    def show_time(self):
+        if self.start:
+            self.count -= 1
+
+            if self.count == 0:
+                self.start = False
+                self.show_popup('Time is up')
+
+        if self.start:
+            text = str(self.count / 10) + " s"
+            self.label.setText(text)
 
     def default_instance(self):
         for line in range(0, 9):
             for column in range(0, 9):
-                nr = self.instance[line*9 + column]
+                nr = self.instance[line * 9 + column]
                 if nr != '0':
                     item = self.Table.item(line, column)
                     item.setText(nr)
@@ -137,7 +164,7 @@ class UiSudokuClass(object):
     def predefined_options(self):
         for column in range(0, 9):
             item = self.Table_2.item(0, column)
-            item.setText(f"{column+1}")
+            item.setText(f"{column + 1}")
 
         item = self.Table_2.item(0, 9)
         item.setText('-')
@@ -151,7 +178,7 @@ class UiSudokuClass(object):
             row = ix.row()
             column = ix.column()
 
-        if self.instance[row*9 + column] != '0':
+        if self.instance[row * 9 + column] != '0':
             return
 
         item = self.Table.item(row, column)
@@ -182,27 +209,17 @@ class UiSudokuClass(object):
         self.matrix = np.array(self.matrix).reshape((9, 9))
 
     def show_popup(self, text):
-        msg = QMessageBox()
+        msg = QtWidgets.QMessageBox()
         msg.setWindowTitle(text)
-        msg.setWindowIcon(QtGui.QIcon('resources/logo.png'))
+        msg.setWindowIcon(QtGui.QIcon('../../resources/logo.png'))
         if text == "Congrats":
             msg.setText("Congrats, you finished the game!")
-            msg.setIcon(QMessageBox.Information)
-            msg.setStandardButtons(QMessageBox.Cancel)
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            msg.setStandardButtons(QtWidgets.QMessageBox.Cancel)
         else:
             msg.setText("Unfortunately, the time is up!")
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Cancel)
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setStandardButtons(QtWidgets.QMessageBox.Cancel)
 
         msg.buttonClicked.connect(cancel_popup)
         msg.exec_()
-
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    sudoku_ui = QtWidgets.QMainWindow()
-
-    ui = UiSudokuClass(sudoku_ui)
-    sudoku_ui.show()
-
-    sys.exit(app.exec_())
