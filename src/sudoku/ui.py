@@ -14,7 +14,7 @@ class UiSudokuClass(object):
     instance = table.generate_instance(10)
     matrix = []
 
-    def setup_ui(self, SudokuClass):
+    def __init__(self, SudokuClass):
         SudokuClass.setObjectName("SudokuClass")
         SudokuClass.setFixedSize(550, 650)
         SudokuClass.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -201,7 +201,8 @@ class UiSudokuClass(object):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     sudoku_ui = QtWidgets.QMainWindow()
-    ui = UiSudokuClass()
-    ui.setup_ui(sudoku_ui)
+
+    ui = UiSudokuClass(sudoku_ui)
     sudoku_ui.show()
+
     sys.exit(app.exec_())
