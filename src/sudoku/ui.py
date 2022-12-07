@@ -11,9 +11,13 @@ def cancel_popup():
 
 class UiSudokuClass(object):
     def __init__(self, SudokuClass, max_time, difficulty):
+        """
+        constructor
+        :param max_time: of the game
+        :param difficulty: of the game
+        """
         self.instance = table.generate_instance(difficulty)
         self.to_place = None
-        self.matrix = []
         self.count = max_time
         self.start = True
 
@@ -24,6 +28,10 @@ class UiSudokuClass(object):
         QtCore.QMetaObject.connectSlotsByName(SudokuClass)
 
     def generate_ui(self, SudokuClass):
+        """
+        generating the UI components
+        created using QTDesigner
+        """
         SudokuClass.setObjectName("SudokuClass")
         SudokuClass.setFixedSize(550, 650)
         SudokuClass.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -139,6 +147,11 @@ class UiSudokuClass(object):
         timer.start(100)
 
     def show_time(self):
+        """
+        updating the timer every 1 second
+        calls the popup to show when timer is up
+        :return: None
+        """
         if self.start:
             self.count -= 1
 
@@ -151,6 +164,10 @@ class UiSudokuClass(object):
             self.label.setText(text)
 
     def default_instance(self):
+        """
+        instantiate the initial matrix
+        :return: None
+        """
         for line in range(0, 9):
             for column in range(0, 9):
                 nr = self.instance[line * 9 + column]
@@ -162,6 +179,10 @@ class UiSudokuClass(object):
                     item.setBackground(brush)
 
     def predefined_options(self):
+        """
+        prefill the possible options
+        :return: None
+        """
         for column in range(0, 9):
             item = self.Table_2.item(0, column)
             item.setText(f"{column + 1}")
@@ -170,6 +191,13 @@ class UiSudokuClass(object):
         item.setText('-')
 
     def handle_select_matrix(self, selected):
+        """
+        handles the selection of a box
+        changes the value of the box with the selected pre-option
+        if matrix becomes full, it checks if it is valid solution
+        :param selected: the selected box from the matrix
+        :return: None
+        """
         if self.to_place is None:
             return
 
@@ -190,6 +218,11 @@ class UiSudokuClass(object):
         self.Table.clearSelection()
 
     def handle_select_numbers(self, selected):
+        """
+        handles the selection of a number
+        :param selected: selected box number
+        :return:
+        """
         index = 0
         for ix in selected.indexes():
             index = ix.column()
@@ -201,6 +234,10 @@ class UiSudokuClass(object):
             self.to_place = item.text()
 
     def get_matrix_state(self):
+        """
+        convert the data from UI table into matrix
+        :return: None
+        """
         self.matrix = []
         for line in range(0, 9):
             for column in range(0, 9):
@@ -209,6 +246,11 @@ class UiSudokuClass(object):
         self.matrix = np.array(self.matrix).reshape((9, 9))
 
     def show_popup(self, text):
+        """
+        create and show the popup with a specified message
+        :param text: that will be shown in the popup
+        :return: None
+        """
         msg = QtWidgets.QMessageBox()
         msg.setWindowTitle(text)
         msg.setWindowIcon(QtGui.QIcon('../../resources/logo.png'))
